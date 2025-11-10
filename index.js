@@ -23,14 +23,16 @@ async function run() {
   try {
     await client.connect();
 
-    app.get("/", (req, res) => {
-      res.send("FinEase Server is Running to working");
-    });
+    const db=client.db('FinEase-db')
+    const transaction=db.collection('transactions')
 
 
+    //Transactions get kortesi 
+    app.get('/transactions',async(req,res)=>{
+        const result=await transaction.find().toArray()
 
-
-
+        res.send(result)
+    })
 
 
 
@@ -49,5 +51,5 @@ async function run() {
 }
 run().catch(console.dir);
 
-// FinEase-A10
-// 2NB2b7CwEjHrMnD5
+// https://github.com/16461346/FinEase-A10-Server.git
+// https://github.com/16461346/FinBase-A10.git
