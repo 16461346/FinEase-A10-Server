@@ -34,6 +34,16 @@ async function run() {
         res.send(result)
     })
 
+    //Post A Tranction
+    app.post('/transactions', async(req,res)=>{
+      const data=req.body;
+      const result=await transaction.insertOne(data);
+
+      res.send({
+        success: true
+      })
+    })
+
 
 
 
