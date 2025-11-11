@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 app.use(cors());
@@ -30,8 +30,17 @@ async function run() {
     //Transactions get kortesi 
     app.get('/transactions',async(req,res)=>{
         const result=await transaction.find().toArray()
-
         res.send(result)
+    })
+
+    app.get('/transactions/:id',async(req,res)=>{
+      const {id}=req.params;
+      const objectId=new ObjectId(id);
+      const result= await transaction.findOne({_id:objectId})
+
+      res.send({
+        result
+      })
     })
 
     //Post A Tranction
