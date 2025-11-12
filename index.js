@@ -43,6 +43,25 @@ async function run() {
       })
     })
 
+    app.put('/transactions/:id', async(req,res)=>{
+      const {id}=req.params;
+      const data=req.body;
+      console.log(data)
+      const objectId=new ObjectId(id)
+      const filter={_id: objectId}
+      const update={
+        $set: data
+      }
+      
+      const result= await transaction.updateOne(filter,update);
+
+
+      res.send({
+        success: true,
+        result
+      })
+    })
+
     //Post A Tranction
     app.post('/transactions', async(req,res)=>{
       const data=req.body;
@@ -52,6 +71,8 @@ async function run() {
         success: true
       })
     })
+
+    
 
 
 
