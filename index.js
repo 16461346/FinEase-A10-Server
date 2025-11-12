@@ -24,8 +24,25 @@ async function run() {
 
     const db = client.db("FinEase-db");
     const transaction = db.collection("transactions");
+    const users = db.collection("users");
 
-    //Transactions get kortesi
+    app.post("/users", async (req, res) => {
+      const newUser = req.body;
+
+      const email = req.body.email;
+      const query = { email: email };
+      const existionUser = await users.findOne(query);
+
+      if (existionUser) {
+        res.send({message:"user already exist"});
+
+      } else {
+        const result = await users.insertOne(newUser);
+        res.send(result);
+      }
+    });
+
+
     app.get("/transactions", async (req, res) => {
       const result = await transaction.find().toArray();
       res.send(result);
@@ -72,46 +89,53 @@ async function run() {
     });
 
     //Post A Tranction
-   app.post("/transactions", async (req, res) => {
-  const data = req.body;
+    app.post("/transactions", async (req, res) => {
+      const data = req.body;
 
-  if (data.date) {
-    data.date = new Date(data.date + "T00:00:00Z"); // UTC midnight
-  }
+      if (data.date) {
+        data.date = new Date(data.date + "T00:00:00Z"); // UTC midnight
+      }
 
-  const result = await transaction.insertOne(data);
-  res.send({ success: true, result });
-});
+      const result = await transaction.insertOne(data);
+      res.send({ success: true, result });
+    });
 
+    app.get("/month-transactions", async (req, res) => {
+      const now = new Date();
 
-   app.get("/month-transactions", async (req, res) => {
-  const now = new Date();
+      // Start of current month UTC
+      const startOfMonth = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0)
+      );
 
-  // Start of current month UTC
-  const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0));
+      // End of current month UTC (23:59:59 last day)
+      const endOfMonth = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59)
+      );
 
-  // End of current month UTC (23:59:59 last day)
-  const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59));
+      try {
+        const transactions = await transaction
+          .find({
+            date: { $gte: startOfMonth, $lte: endOfMonth },
+          })
+          .sort({ date: -1 })
+          .toArray();
 
-  try {
-    const transactions = await transaction
-      .find({
-        date: { $gte: startOfMonth, $lte: endOfMonth },
-      })
-      .sort({ date: -1 })
-      .toArray();
+        console.log(
+          "Start:",
+          startOfMonth,
+          "End:",
+          endOfMonth,
+          "Found:",
+          transactions.length
+        );
 
-    console.log("Start:", startOfMonth, "End:", endOfMonth, "Found:", transactions.length);
-
-    res.json(transactions);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server Error" });
-  }
-});
-
-
-
+        res.json(transactions);
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server Error" });
+      }
+    });
 
     app.listen(port, () => {
       console.log(`app listen port ${port}`);
