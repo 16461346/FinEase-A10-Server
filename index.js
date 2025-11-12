@@ -26,6 +26,7 @@ async function run() {
     const transaction = db.collection("transactions");
     const users = db.collection("users");
 
+    //user post
     app.post("/users", async (req, res) => {
       const newUser = req.body;
 
@@ -41,6 +42,22 @@ async function run() {
         res.send(result);
       }
     });
+
+
+    //user update
+     app.put("/update-user", async(req,res)=>{
+      const email=req.query.email;
+      const Data=req.body;
+      const filter={email: email}
+      const update={
+        $set:Data
+      }
+      const result=await users.updateOne(filter,update);
+      res.send({
+        success:true,
+        result
+      })
+    })
 
 
     app.get("/transactions", async (req, res) => {
@@ -74,6 +91,9 @@ async function run() {
         result,
       });
     });
+
+  
+
 
     app.delete("/transactions/:id", async (req, res) => {
       const { id } = req.params;
