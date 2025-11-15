@@ -15,5 +15,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/16461346/FinEase-A10-Server.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/16461346/FinEase-A10-Server/issues"
+  },
+  "homepage": "https://github.com/16461346/FinEase-A10-Server#readme"
 }
