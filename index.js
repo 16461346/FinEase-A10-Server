@@ -35,30 +35,41 @@ async function run() {
       const existionUser = await users.findOne(query);
 
       if (existionUser) {
-        res.send({message:"user already exist"});
-
+        res.send({ message: "user already exist" });
       } else {
         const result = await users.insertOne(newUser);
         res.send(result);
       }
     });
 
-
     //user update
-     app.put("/update-user", async(req,res)=>{
-      const email=req.query.email;
-      const Data=req.body;
-      const filter={email: email}
-      const update={
-        $set:Data
-      }
-      const result=await users.updateOne(filter,update);
+    app.put("/update-user", async (req, res) => {
+      const email = req.query.email;
+      const Data = req.body;
+      const filter = { email: email };
+      const update = {
+        $set: Data,
+      };
+      const result = await users.updateOne(filter, update);
       res.send({
-        success:true,
-        result
-      })
-    })
+        success: true,
+        result,
+      });
+    });
 
+    // GET reports by email
+    app.get("/report-page", async (req, res) => {
+      const email = req.query.email;
+      if (!email) return res.status(400).json({ error: "Email is required" });
+
+      try {
+        const userReports = await transaction.find({ email }).toArray();
+        res.json(userReports);
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server Error" });
+      }
+    });
 
     app.get("/transactions", async (req, res) => {
       const result = await transaction.find().toArray();
@@ -91,9 +102,6 @@ async function run() {
         result,
       });
     });
-
-  
-
 
     app.delete("/transactions/:id", async (req, res) => {
       const { id } = req.params;
